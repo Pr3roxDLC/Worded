@@ -3,10 +3,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main extends JFrame implements Runnable {
@@ -15,7 +15,9 @@ public class Main extends JFrame implements Runnable {
     JLabel testLabel = new JLabel();
     JTextField inPath = new JTextField();
     JButton goButton = new JButton();
+    JTextPane hitlist = new JTextPane();
 
+    List<String> hits = new ArrayList<>();
 
     JPanel panel = new JPanel();
 
@@ -68,7 +70,7 @@ public class Main extends JFrame implements Runnable {
                         try {
                             String data = scanner.nextLine();
 
-                            if (data.length() <= 3) continue;
+                            if (data.length() <= 3 || !isOnlyChars(data)) continue;
 
                             int h =  testLabel.getFontMetrics(testLabel.getFont()).stringWidth(data);
                             testLabel.setLocation(400 + (400-h)/2, 40);
@@ -83,6 +85,8 @@ public class Main extends JFrame implements Runnable {
                             }
                             if (str.toString().equalsIgnoreCase("")) {
                                 System.out.println("AVAILABLE: " + data);
+                                hits.add(data);
+                                hitlist.setText(hitlist.getText() + data.toUpperCase() + System.lineSeparator());
                                 isAvailable = true;
                             } else {
                                 isAvailable = false;
@@ -114,6 +118,10 @@ public class Main extends JFrame implements Runnable {
     }
 
 
+    public boolean isOnlyChars(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
     public Main() {
         setVisible(true);
         setSize(800, 600);
@@ -128,27 +136,45 @@ public class Main extends JFrame implements Runnable {
             public void actionPerformed(ActionEvent e) {
 
                 programState = ProgramState.INITIALIZING_RUN;
+                goButton.setVisible(false);
 
             }
         });
 
-        goButton.setBounds(100, 100, 50, 20);
+        goButton.setBounds(25, 450, 350, 100);
         goButton.setVisible(true);
+        goButton.setBackground(Color.GREEN);
+        goButton.setText("RUN");
+        goButton.setFont(new Font("Consolas", Font.PLAIN, 40));
+        goButton.setBorder(null);
         panel.add(goButton);
+
+        inPath.setBounds(100, 50, 200, 20);
+        inPath.setVisible(true);
+        inPath.setBackground(Color.LIGHT_GRAY);
+        inPath.setBorder(null);
+        inPath.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
+        panel.add(inPath);
 
 
         testLabel.setBounds(400, 40, 400, 50);
         testLabel.setForeground(Color.WHITE);
         testLabel.setFont(new Font("Consolas", Font.PLAIN, 40));
-        testLabel.setText("TestTestTest");
+        testLabel.setText("");
         testLabel.setVisible(true);
         panel.add(testLabel);
 
-        inPath.setBounds(0, 100, 50, 20);
-        inPath.setVisible(true);
-        panel.add(inPath);
 
 
+        hitlist.setBounds(400,120,375,430);
+        hitlist.setVisible(true);
+        hitlist.setBackground(Color.LIGHT_GRAY);
+        hitlist.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
+        panel.add(hitlist);
+
+
+        //Put this at the Very end or the list will dissapear for some reason
+        inPath.setToolTipText("Path to your Input File");
     }
 
     public static void main(String[] args) {
