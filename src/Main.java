@@ -2,29 +2,27 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Scanner;
 
 public class Main extends JFrame implements Runnable {
 
 
-   JLabel testLabel = new JLabel();
-   JTextField inPath = new JTextField();
-   JButton goButton = new JButton();
+    JLabel testLabel = new JLabel();
+    JTextField inPath = new JTextField();
+    JButton goButton = new JButton();
 
-   JPanel panel = new JPanel();
+    JPanel panel = new JPanel();
 
 
     @Override
     public void run() {
 
-        while(true) {
+        while (true) {
 
             try {
                 Thread.sleep(1);
@@ -44,13 +42,12 @@ public class Main extends JFrame implements Runnable {
         panel.setBackground(Color.DARK_GRAY);
 
 
-
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     go();
-                } catch (IOException ex) {
+                } catch (IOException | InterruptedException ex) {
                     ex.printStackTrace();
                 }
 
@@ -75,24 +72,32 @@ public class Main extends JFrame implements Runnable {
     }
 
 
-    public void go() throws IOException {
+    public void go() throws IOException, InterruptedException {
 
-        System.out.println("AAAA");
+        File wordList = new File("C:\\Users\\Tim\\Documents\\wordlist.txt");
+        Scanner scanner = new Scanner(wordList);
+        while (scanner.hasNextLine()) {
+            String data = scanner.nextLine();
 
-        URL oracle = new URL("https://api.mojang.com/users/profiles/minecraft/Pr3roxDLC");
-        URLConnection yc = oracle.openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-        String inputLine;
-        StringBuilder str = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            str.append(inputLine);
+            URL oracle = new URL("https://api.mojang.com/users/profiles/minecraft/" + data);
+            URLConnection yc = oracle.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+            String inputLine;
+            StringBuilder str = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                str.append(inputLine);
+            }
+            if (str.toString().equalsIgnoreCase("")){
+                System.out.println("AVAILABLE: " + data);
+            }else{
+               System.out.print(".");
+            }
+            in.close();
+            //MojangAPI Rate Limit 600 / 10Mins, Bypass with Proxies?
+            Thread.sleep(1000);
         }
-        if(str.toString().equalsIgnoreCase("")){
-            System.out.println("AVAILABLE");
-        }
-        in.close();
-
     }
+
 
     public static void main(String[] args) {
         Thread f = new Thread(new Main());
