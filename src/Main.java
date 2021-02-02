@@ -13,7 +13,13 @@ public class Main extends JFrame implements Runnable {
 
 
     JLabel testLabel = new JLabel();
+
+    JLabel inPathLabel = new JLabel();
     JTextField inPath = new JTextField();
+
+    JLabel startingIndexLabel = new JLabel();
+    JTextField startingIndex = new JTextField();
+
     JButton goButton = new JButton();
     JTextPane hitlist = new JTextPane();
 
@@ -55,11 +61,12 @@ public class Main extends JFrame implements Runnable {
                 testLabel.setForeground(Color.WHITE);
 
                 if (programState == ProgramState.INITIALIZING_RUN) {
-                    wordList = new File("C:\\Users\\Tim\\Documents\\wordlist.txt");
+
+                    wordList = new File(inPath.getText());
                     try {
                         scanner = new Scanner(wordList);
                     } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                        System.exit(420);
                     }
                     programState = ProgramState.INITIALIZED_RUN;
                 }
@@ -147,14 +154,36 @@ public class Main extends JFrame implements Runnable {
         goButton.setText("RUN");
         goButton.setFont(new Font("Consolas", Font.PLAIN, 40));
         goButton.setBorder(null);
-        panel.add(goButton);
 
-        inPath.setBounds(100, 50, 200, 20);
+
+
+        inPathLabel.setBounds(100, 120, 100, 20);
+        inPathLabel.setText("WorldList Path");
+        inPathLabel.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
+        inPathLabel.setForeground(Color.WHITE);
+        inPathLabel.setVisible(true);
+
+
+        inPath.setBounds(100, 140, 200, 20);
         inPath.setVisible(true);
         inPath.setBackground(Color.LIGHT_GRAY);
         inPath.setBorder(null);
         inPath.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
-        panel.add(inPath);
+
+
+        startingIndexLabel.setBounds(100, 160, 100, 20);
+        startingIndexLabel.setText("Starting Index");
+        startingIndexLabel.setFont(new Font("Consolas", Font.PLAIN, startingIndex.getFont().getSize()));
+        startingIndexLabel.setForeground(Color.WHITE);
+        startingIndexLabel.setVisible(true);
+
+
+        startingIndex.setBounds(100, 180, 200, 20);
+        startingIndex.setVisible(true);
+        startingIndex.setBackground(Color.LIGHT_GRAY);
+        startingIndex.setBorder(null);
+        startingIndex.setFont(new Font("Consolas", Font.PLAIN, startingIndex.getFont().getSize()));
+
 
 
         testLabel.setBounds(400, 40, 400, 50);
@@ -162,7 +191,7 @@ public class Main extends JFrame implements Runnable {
         testLabel.setFont(new Font("Consolas", Font.PLAIN, 40));
         testLabel.setText("");
         testLabel.setVisible(true);
-        panel.add(testLabel);
+
 
 
 
@@ -170,9 +199,15 @@ public class Main extends JFrame implements Runnable {
         hitlist.setVisible(true);
         hitlist.setBackground(Color.LIGHT_GRAY);
         hitlist.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
+
+
+        panel.add(goButton);
+        panel.add(inPathLabel);
+        panel.add(inPath);
+        panel.add(startingIndexLabel);
+        panel.add(startingIndex);
+        panel.add(testLabel);
         panel.add(hitlist);
-
-
         //Put this at the Very end or the list will dissapear for some reason
         inPath.setToolTipText("Path to your Input File");
     }
