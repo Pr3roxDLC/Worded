@@ -12,20 +12,23 @@ import java.util.Scanner;
 public class Main extends JFrame implements Runnable {
 
 
-    JLabel testLabel = new JLabel();
+    private JLabel testLabel = new JLabel();
 
-    JLabel inPathLabel = new JLabel();
-    JTextField inPath = new JTextField();
+    private JTextField inPath = new JTextField();
 
-    JLabel startingIndexLabel = new JLabel();
-    JTextField startingIndex = new JTextField();
+    private JTextField startingIndex = new JTextField();
 
-    JButton goButton = new JButton();
-    JTextPane hitlist = new JTextPane();
+    private JButton goButton = new JButton();
+    private JButton stopButton = new JButton();
+    private  JButton saveButton = new JButton();
 
-    List<String> hits = new ArrayList<>();
+    private  JLabel startFromLastIndexLabel = new JLabel();
+    private  JCheckBox startFromLastIndex = new JCheckBox();
 
-    JPanel panel = new JPanel();
+
+    private JTextPane hitlist = new JTextPane();
+
+    private List<String> hits = new ArrayList<>();
 
     public enum ProgramState {STARTED, INITIALIZING_RUN, INITIALIZED_RUN, RUNNING, FINISHED}
 
@@ -33,6 +36,10 @@ public class Main extends JFrame implements Runnable {
 
     File wordList = null;
     Scanner scanner = null;
+
+    int startingIndexInt = 0;
+    int currentIndex = 0;
+    int savedIndex = 0;
     boolean updateVisual = true;
     boolean isAvailable = false;
 
@@ -41,6 +48,20 @@ public class Main extends JFrame implements Runnable {
 
 
         while (true) {
+
+            if(programState == ProgramState.INITIALIZED_RUN){
+                goButton.setVisible(false);
+                stopButton.setVisible(true);
+                saveButton.setVisible(true);
+            }
+            if(programState == ProgramState.STARTED){
+
+
+                goButton.setVisible(true);
+                stopButton.setVisible(false);
+                saveButton.setVisible(false);
+            }
+
 
             if (updateVisual) {
 
@@ -62,13 +83,19 @@ public class Main extends JFrame implements Runnable {
 
                 if (programState == ProgramState.INITIALIZING_RUN) {
 
-                    wordList = new File(inPath.getText());
+                    try {startingIndexInt = Integer.parseInt(startingIndex.getText());}catch (NumberFormatException e){startingIndexInt = 0;}
+                    currentIndex = 0;
+
+
                     try {
+                        wordList = new File(inPath.getText());
                         scanner = new Scanner(wordList);
+                        programState = ProgramState.INITIALIZED_RUN;
                     } catch (FileNotFoundException e) {
-                        System.exit(420);
+                    //    System.exit(420);
+                        programState = ProgramState.STARTED;
                     }
-                    programState = ProgramState.INITIALIZED_RUN;
+
                 }
                 if (programState == ProgramState.INITIALIZED_RUN) {
 
@@ -77,7 +104,8 @@ public class Main extends JFrame implements Runnable {
                         try {
                             String data = scanner.nextLine();
 
-                            if (data.length() <= 3 || !isOnlyChars(data)) continue;
+                            currentIndex++;
+                            if (data.length() <= 3 || !isOnlyChars(data) || currentIndex < startingIndexInt) continue;
 
                             int h =  testLabel.getFontMetrics(testLabel.getFont()).stringWidth(data);
                             testLabel.setLocation(400 + (400-h)/2, 40);
@@ -133,6 +161,7 @@ public class Main extends JFrame implements Runnable {
         setVisible(true);
         setSize(800, 600);
         setLayout(null);
+        JPanel panel = new JPanel();
         setContentPane(panel);
         panel.setLayout(null);
         panel.setBackground(Color.DARK_GRAY);
@@ -141,12 +170,26 @@ public class Main extends JFrame implements Runnable {
         goButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 programState = ProgramState.INITIALIZING_RUN;
-                goButton.setVisible(false);
 
+                if(startFromLastIndex.isEnabled()){
+
+                    startingIndexInt = savedIndex;
+
+                }
             }
         });
+
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                programState = ProgramState.STARTED;
+                savedIndex = currentIndex;
+                startingIndexInt = 0;
+            }
+        });
+
+
 
         goButton.setBounds(25, 450, 350, 100);
         goButton.setVisible(true);
@@ -155,15 +198,27 @@ public class Main extends JFrame implements Runnable {
         goButton.setFont(new Font("Consolas", Font.PLAIN, 40));
         goButton.setBorder(null);
 
+        stopButton.setBounds(25, 450, 170, 100);
+        stopButton.setVisible(false);
+        stopButton.setBackground(Color.RED);
+        stopButton.setFont(new Font("Consolas", Font.PLAIN, 40));
+        stopButton.setText("STOP");
+        stopButton.setBorder(null);
+
+        saveButton.setBounds( 205, 450,170, 100);
+        saveButton.setVisible(true);
+        saveButton.setBackground(Color.LIGHT_GRAY);
+        saveButton.setFont(new Font("Consolas", Font.PLAIN, 40));
+        saveButton.setText("SAVE");
 
 
+
+        JLabel inPathLabel = new JLabel();
         inPathLabel.setBounds(100, 120, 100, 20);
         inPathLabel.setText("WorldList Path");
         inPathLabel.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
         inPathLabel.setForeground(Color.WHITE);
         inPathLabel.setVisible(true);
-
-
         inPath.setBounds(100, 140, 200, 20);
         inPath.setVisible(true);
         inPath.setBackground(Color.LIGHT_GRAY);
@@ -171,18 +226,31 @@ public class Main extends JFrame implements Runnable {
         inPath.setFont(new Font("Consolas", Font.PLAIN, inPath.getFont().getSize()));
 
 
+
+
+
+
+        JLabel startingIndexLabel = new JLabel();
         startingIndexLabel.setBounds(100, 160, 100, 20);
         startingIndexLabel.setText("Starting Index");
         startingIndexLabel.setFont(new Font("Consolas", Font.PLAIN, startingIndex.getFont().getSize()));
         startingIndexLabel.setForeground(Color.WHITE);
         startingIndexLabel.setVisible(true);
-
-
         startingIndex.setBounds(100, 180, 200, 20);
         startingIndex.setVisible(true);
         startingIndex.setBackground(Color.LIGHT_GRAY);
         startingIndex.setBorder(null);
         startingIndex.setFont(new Font("Consolas", Font.PLAIN, startingIndex.getFont().getSize()));
+
+
+        startFromLastIndex.setBounds(100, 220, 200, 20);
+        startFromLastIndex.setText("Start from last Index");
+        startFromLastIndex.setBackground(Color.DARK_GRAY);
+        startFromLastIndex.setForeground(Color.WHITE);
+        startFromLastIndex.setFont(new Font("Consolas", Font.PLAIN, startingIndex.getFont().getSize()));
+        startFromLastIndex.setBorder(null);
+        startFromLastIndex.setVisible(true);
+
 
 
 
@@ -208,9 +276,15 @@ public class Main extends JFrame implements Runnable {
         panel.add(startingIndex);
         panel.add(testLabel);
         panel.add(hitlist);
+        panel.add(stopButton);
+        panel.add(saveButton);
+        panel.add(startFromLastIndex);
         //Put this at the Very end or the list will dissapear for some reason
         inPath.setToolTipText("Path to your Input File");
+        hitlist.setText("Word:                  Index" + System.lineSeparator());
+
     }
+
 
     public static void main(String[] args) {
         Thread f = new Thread(new Main());
